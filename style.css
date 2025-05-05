@@ -13,11 +13,18 @@ html, body {
 }
 
 h1 {
-    font-size: 42px;
-    margin-bottom: 50px;
+    font-size: 56px;
+    margin-bottom: 15px;
 }
 input {
     margin-bottom: 15px;
+    height: 20px;
+    font-size: 18px;    
+    border-radius: 6px;
+    padding: 4px;
+    border: 2px solid lightgrey;
+    transition: all 0.3s ease; 
+
 }
 
 button {
@@ -31,4 +38,38 @@ button {
     height: 50px;
     border: 2px solid #3882F6;
     margin-bottom: 10px;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #f9f9f9;
+    border-bottom: 2px solid #ccc;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.player-info {
+    background-color: #f3f4f6;
+    padding: 10px 20px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.left {
+    text-align: left;
+}
+#names{
+    font-weight: bold;
+    font-size: 20px;
+}
+.name{
+    font-size: 24px;
+}
+.marker{
+    color: #3882F6;
+    font-size: 24px;
+    font-weight: bold;
 }
