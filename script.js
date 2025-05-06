@@ -7,7 +7,70 @@
     //factory
     
 });*/
+const Player = (name, sign) => {
+    let score = 0;
+    return { name, sign, score };
+};
 
+function GameController (name1,name2) {
+    const player1 = Player(name1, "X");
+    const player2 = Player(name2, "O");
+    let currentPlayer = "X";
+
+    return {player1,player2,currentPlayer};
+
+    
+};
+const game = GameController("barak","vered");
+
+function Gameboard () {
+    const board = ["", "", "", "", "", "", "", "", ""];
+
+    const getBoard = () => board;
+
+ 
+
+    const reset = () => {
+        for (let i = 0; i < board.length; i++) {
+            board[i] = "";
+        }
+    };
+    const boardElement = document.querySelector(".board");
+
+    const createBoard = () => {
+        for (let i = 0; i < board.length; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.index = i;
+            boardElement.appendChild(cell);
+            
+            cell.addEventListener("click", (e) => {
+                const indexCell = e.target.dataset.index;
+                if (cell.textContent === ""){
+                    cell.textContent = game.currentPlayer;
+                    board[indexCell] = game.currentPlayer;
+                    cell.textContent = game.currentPlayer;
+                    game.currentPlayer = game.currentPlayer === "X" ? "O" : "X";
+                }   
+                console.log(board)              
+              
+                
+            });
+        
+            boardElement.appendChild(cell);
+            
+        }
+    }
+
+    return { getBoard, reset, createBoard };
+};
+
+const board = Gameboard();
+
+board.createBoard();
+
+
+//Starting game
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("names");
     const player1NameInput = document.getElementById("first-name");
@@ -23,69 +86,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const name1 = player1NameInput.value.trim();
         const name2 = player2NameInput.value.trim();
+        const game = GameController(name1,name2);
+
 
         if (name1 && name2) {
             // display names
             player1Display.textContent = name1;
             player2Display.textContent = name2;
-
             // markers
             player1Marker.textContent = "X";
             player2Marker.textContent = "O";
 
+            
+
             // hiding forms
             form.style.display = "none";
+            //board.createBoard();
         }
     });
 });
 
-const Player = (name, sign) => {
-    let score = 0;
-    return { name, sign, score };
-};
 
-const Gameboard = (function () {
-    const board = ["", "", "", "", "", "", "", "", ""];
 
-    const getBoard = () => board;
 
-    const setCell = (index, marker) => {
-        if (board[index] === "") {
-            board[index] = marker;
-            return true;
-        }
-        return false;
-    };
 
-    const reset = () => {
-        for (let i = 0; i < board.length; i++) {
-            board[i] = "";
-        }
-    };
-
-    return { getBoard, setCell, reset };
-})();
-
-const GameController = (function () {
-    const player1 = Player("Player 1", "X");
-    const player2 = Player("שחקן 2", "O");
-    let currentPlayer = player1;
-
-    const playRound = (index) => {
-        if (Gameboard.setCell(index, currentPlayer.marker)) {
-            DisplayController.update();
-            switchPlayer();
-        }
-    };
-
-    const switchPlayer = () => {
-        currentPlayer = currentPlayer === player1 ? player2 : player1;
-    };
-
-    const getCurrentPlayer = () => currentPlayer;
-
-    return { playRound, getCurrentPlayer };
-})();
 
 const DisplayController = (function () {
     const boardDiv = document.getElementById("gameboard");
