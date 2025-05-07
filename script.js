@@ -16,23 +16,72 @@ function GameController (name1,name2) {
     const player1 = Player(name1, "X");
     const player2 = Player(name2, "O");
     let currentPlayer = "X";
+    const player1Info = document.getElementById("player1-info");
+    const player2Info = document.getElementById("player2-info");
 
-    return {player1,player2,currentPlayer};
+    const updateActivePlayerUI = () => {
+        if (game.currentPlayer === "X") {
+            player1Info.classList.add("active-player");
+            player2Info.classList.remove("active-player");
+        } else {
+            player2Info.classList.add("active-player");
+            player1Info.classList.remove("active-player");
+        }
+    };
+
+    return {player1,player2,currentPlayer,updateActivePlayerUI};
 
     
 };
 const game = GameController("barak","vered");
+game.updateActivePlayerUI();
+const winningCombos = [
+    [0, 1, 2], // top row
+    [3, 4, 5], // middle row
+    [6, 7, 8], // bottom row
+    [0, 3, 6], // left column
+    [1, 4, 7], // middle column
+    [2, 5, 8], // right column
+    [0, 4, 8], // diagonal
+    [2, 4, 6], // diagonal
+  ];
+
+const MAX_COMBO = 8
 
 function Gameboard () {
     const board = ["", "", "", "", "", "", "", "", ""];
 
     const getBoard = () => board;
 
- 
+    const check3WIn = () => {
+        console.log(` ${game.currentPlayer} turn`)
+        for (let i = 0; i < MAX_COMBO; i++) {
+            if (board[winningCombos[i][0]] !== "" && board[winningCombos[i][0]] === board[winningCombos[i][1]] &&
+                board[winningCombos[i][0]] === board[winningCombos[i][2]]){
+                if (board[winningCombos[i][0]] === 'X')
+                {
+                    console.log(`Congratsultions ${game.player1.name} won !`);
+                    markerWinnerCells(...winningCombos[i]);
+                }
+                else{
+                    console.log(`Congratsultions ${game.player2.name} won !`);
+                    markerWinnerCells(...winningCombos[i]);
+                }
+                return true;
+            }
+        }
+    };
+
+    const markerWinnerCells = (a,b,c) =>{
+        document.querySelector(`[data-index="${a}"]`).classList.add("winning-cell");
+        document.querySelector(`[data-index="${b}"]`).classList.add("winning-cell");
+        document.querySelector(`[data-index="${c}"]`).classList.add("winning-cell");
+    }
 
     const reset = () => {
         for (let i = 0; i < board.length; i++) {
             board[i] = "";
+            document.querySelector(`[data-index="${i}"]`).textContent = "";
         }
     };
     const boardElement = document.querySelector(".board");
@@ -51,10 +100,9 @@ function Gameboard () {
                     board[indexCell] = game.currentPlayer;
                     cell.textContent = game.currentPlayer;
                     game.currentPlayer = game.currentPlayer === "X" ? "O" : "X";
+                    game.updateActivePlayerUI();
+                    check3WIn();
                 }   
-                console.log(board)              
-              
-                
             });
         
             boardElement.appendChild(cell);
@@ -90,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         if (name1 && name2) {
+            
             // display names
             player1Display.textContent = name1;
             player2Display.textContent = name2;
@@ -97,10 +146,10 @@ document.addEventListener("DOMContentLoaded", () => {
             player1Marker.textContent = "X";
             player2Marker.textContent = "O";
 
-            
-
+     
             // hiding forms
             form.style.display = "none";
+            resetBtn.style.display = "inline-block";
             //board.createBoard();
         }
     });

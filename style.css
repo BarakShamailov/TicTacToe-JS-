@@ -99,3 +99,14 @@ button {
     height: 250px;
     user-select: none;
 }
+
+.active-player {
+    font-weight: bold;
+    color: rgb(0, 255, 255);
+    border-bottom: 4px solid #3882F6;
+}
+
+.winning-cell{
+    background-color: lightgreen;
+
+}
