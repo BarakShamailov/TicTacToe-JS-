@@ -1,12 +1,4 @@
-/*const GameController = (function () {
-    let board = ["", "", "", "", "", "", "", "", ""]; // Private game board
-    let players = [];
-    let currentPlayerIndex = 0;
-    let gameOver = false;
 
-    //factory
-    
-});*/
 const Player = (name, sign) => {
     let score = 0;
     return { name, sign, score };
@@ -18,6 +10,7 @@ function GameController (name1,name2) {
     let currentPlayer = "X";
     const player1Info = document.getElementById("player1-info");
     const player2Info = document.getElementById("player2-info");
+    let gameover = false;
 
     const updateActivePlayerUI = () => {
         if (game.currentPlayer === "X") {
@@ -29,7 +22,26 @@ function GameController (name1,name2) {
         }
     };
 
-    return {player1,player2,currentPlayer,updateActivePlayerUI};
+    const resetScore = () =>{
+        document.querySelector("#player1-info .score").textContent = 0;
+        document.querySelector("#player2-info .score").textContent = 0;
+        game.player1.score = 0;
+        game.player2.score = 0;
+    };
+
+    const increaseScore = (marker) =>{
+        if (marker === 'X')
+        {
+            game.player1.score += 1;
+            document.querySelector("#player1-info .score").textContent = game.player1.score;
+        }
+        else{
+            game.player2.score += 1;
+            document.querySelector("#player2-info .score").textContent = game.player2.score;
+        }
+            
+    };
+    return {player1,player2,currentPlayer,updateActivePlayerUI,resetScore,increaseScore};
 
     
 };
@@ -60,29 +72,41 @@ function Gameboard () {
                 board[winningCombos[i][0]] === board[winningCombos[i][2]]){
                 if (board[winningCombos[i][0]] === 'X')
                 {
-                    console.log(`Congratsultions ${game.player1.name} won !`);
                     markerWinnerCells(...winningCombos[i]);
+                    game.increaseScore('X');
+                    document.getElementById("player1-info").classList.add("winner-player"); 
+                    setTimeout(() => {
+                        alert(`🎉 ${game.player1.name} wins! 🎉`);
+                    }, 100);
                 }
                 else{
-                    console.log(`Congratsultions ${game.player2.name} won !`);
                     markerWinnerCells(...winningCombos[i]);
+                    game.increaseScore('O');
+                    document.getElementById("player2-info").classList.add("winner-player");
+                    setTimeout(() => {
+                        alert(`🎉 ${game.player2.name} wins! 🎉`);
+                    }, 100);
                 }
-                return true;
+                game.gameover = true;
+                
             }
         }
     };
 
     const markerWinnerCells = (a,b,c) =>{
-        document.querySelector(`[data-index="${a}"]`).classList.add("winning-cell");
-        document.querySelector(`[data-index="${b}"]`).classList.add("winning-cell");
-        document.querySelector(`[data-index="${c}"]`).classList.add("winning-cell");
+        document.querySelector(`[data-index="${a}"]`).style.backgroundColor = "lightgreen";
+        document.querySelector(`[data-index="${b}"]`).style.backgroundColor = "lightgreen";
+        document.querySelector(`[data-index="${c}"]`).style.backgroundColor = "lightgreen";
     }
 
-    const reset = () => {
+    const resetBoard = () => {
         for (let i = 0; i < board.length; i++) {
             board[i] = "";
-            document.querySelector(`[data-index="${i}"]`).textContent = "";
+            const cell = document.querySelector(`[data-index="${i}"]`);
+            cell.textContent = "";
+            cell.style.backgroundColor = "whitesmoke";
         }
+        
     };
     const boardElement = document.querySelector(".board");
 
@@ -94,6 +118,7 @@ function Gameboard () {
             boardElement.appendChild(cell);
             
             cell.addEventListener("click", (e) => {
+                if (game.gameover) return;
                 const indexCell = e.target.dataset.index;
                 if (cell.textContent === ""){
                     cell.textContent = game.currentPlayer;
@@ -104,13 +129,11 @@ function Gameboard () {
                     check3WIn();
                 }   
             });
-        
             boardElement.appendChild(cell);
-            
         }
     }
 
-    return { getBoard, reset, createBoard };
+    return { getBoard, resetBoard, createBoard };
 };
 
 const board = Gameboard();
@@ -152,6 +175,15 @@ document.addEventListener("DOMContentLoaded", () => {
             resetBtn.style.display = "inline-block";
             //board.createBoard();
         }
+    });
+    const resetBtn = document.getElementById("resetBtn");
+
+    resetBtn.addEventListener("click", () => {
+        document.getElementById("player1-info").classList.remove("winner-player");
+        document.getElementById("player2-info").classList.remove("winner-player");
+        game.gameover = false;
+        board.resetBoard();
+        game.resetScore();
     });
 });
 

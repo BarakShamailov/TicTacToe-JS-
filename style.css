@@ -102,11 +102,36 @@ button {
 
 .active-player {
     font-weight: bold;
-    color: rgb(0, 255, 255);
+    color: #3882F6;
     border-bottom: 4px solid #3882F6;
+    box-shadow:0px 0 12px #f04406;
 }
 
-.winning-cell{
-    background-color: lightgreen;
 
+.winner-player {
+    animation: glow 1.5s infinite alternate, pulse 1s infinite;
+    border: 3px solid #dec34a;
+    background-color: #fad1eb;
+    box-shadow: 0 0 12px #fd0606;
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px #f0e806;
+    }
+    100% {
+        box-shadow: 0 0 20px #f0e806;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
