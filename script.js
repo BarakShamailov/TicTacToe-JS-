@@ -1,52 +1,3 @@
-
-const Player = (name, sign) => {
-    let score = 0;
-    return { name, sign, score };
-};
-
-function GameController (name1,name2) {
-    const player1 = Player(name1, "X");
-    const player2 = Player(name2, "O");
-    let currentPlayer = "X";
-    const player1Info = document.getElementById("player1-info");
-    const player2Info = document.getElementById("player2-info");
-    let gameover = false;
-
-    const updateActivePlayerUI = () => {
-        if (game.currentPlayer === "X") {
-            player1Info.classList.add("active-player");
-            player2Info.classList.remove("active-player");
-        } else {
-            player2Info.classList.add("active-player");
-            player1Info.classList.remove("active-player");
-        }
-    };
-
-    const resetScore = () =>{
-        document.querySelector("#player1-info .score").textContent = 0;
-        document.querySelector("#player2-info .score").textContent = 0;
-        game.player1.score = 0;
-        game.player2.score = 0;
-    };
-
-    const increaseScore = (marker) =>{
-        if (marker === 'X')
-        {
-            game.player1.score += 1;
-            document.querySelector("#player1-info .score").textContent = game.player1.score;
-        }
-        else{
-            game.player2.score += 1;
-            document.querySelector("#player2-info .score").textContent = game.player2.score;
-        }
-            
-    };
-    return {player1,player2,currentPlayer,updateActivePlayerUI,resetScore,increaseScore};
-
-    
-};
-const game = GameController("barak","vered");
-game.updateActivePlayerUI();
 const winningCombos = [
     [0, 1, 2], // top row
     [3, 4, 5], // middle row
@@ -58,7 +9,93 @@ const winningCombos = [
     [2, 4, 6], // diagonal
   ];
 
-const MAX_COMBO = 8
+const MAX_COMBO = 8;
+
+
+const Player = (name, sign) => {
+    let score = 0;
+    const setName = (newName) => {
+        name = newName;
+    };
+    const getName = () => name;
+    
+    const getSign = () => sign;
+    
+    const increaseScore = () => {
+        score += 1; 
+    };
+
+    const resetScore = () => {
+        score = 0; 
+    };
+
+    const getScore = () => score;
+
+    return {setName,getName,getSign,increaseScore, getScore, resetScore};
+};
+
+function GameController (name1,name2) {
+    const player1 = Player(name1, "X");
+    const player2 = Player(name2, "O");
+    let currentPlayer = "X";
+    const player1Info = document.getElementById("player1-info");
+    const player2Info = document.getElementById("player2-info");
+    let gameover = false;
+
+    const getGameStatus = () => gameover;
+
+    const setGameStatus = (status) =>
+    {
+        gameover = status;
+    };
+
+    const updateActivePlayerUI = () => {
+        if (game.currentPlayer === "X") {
+            player1Info.classList.add("active-player");
+            player2Info.classList.remove("active-player");
+        } else {
+            player2Info.classList.add("active-player");
+            player1Info.classList.remove("active-player");
+        }
+    };
+
+    const resetActivePlayerUI = () => {
+        player1Info.classList.remove("active-player");
+        player2Info.classList.remove("active-player");
+       
+    };
+
+    const resetWinnerPlayerUI = () => {
+        document.getElementById("player1-info").classList.remove("winner-player");
+        document.getElementById("player2-info").classList.remove("winner-player");
+       
+    };
+
+    const resetScore = () =>{
+        game.player1.resetScore()
+        document.querySelector("#player1-info .score").textContent = game.player1.getScore();
+        game.player2.resetScore()
+        document.querySelector("#player2-info .score").textContent = game.player2.getScore();
+    };
+
+    const increaseScore = (marker) =>{
+        if (marker === 'X')
+        {
+            game.player1.increaseScore()
+            document.querySelector("#player1-info .score").textContent = game.player1.getScore();
+        }
+        else{
+            game.player2.increaseScore()
+            document.querySelector("#player2-info .score").textContent = game.player2.getScore();
+        }
+            
+    };
+    return {player1,player2,currentPlayer,resetActivePlayerUI,updateActivePlayerUI,resetScore,increaseScore,getGameStatus,setGameStatus,resetWinnerPlayerUI};
+
+    
+};
+
+
 
 function Gameboard () {
     const board = ["", "", "", "", "", "", "", "", ""];
@@ -66,7 +103,6 @@ function Gameboard () {
     const getBoard = () => board;
 
     const check3WIn = () => {
-        console.log(` ${game.currentPlayer} turn`)
         for (let i = 0; i < MAX_COMBO; i++) {
             if (board[winningCombos[i][0]] !== "" && board[winningCombos[i][0]] === board[winningCombos[i][1]] &&
                 board[winningCombos[i][0]] === board[winningCombos[i][2]]){
@@ -76,18 +112,21 @@ function Gameboard () {
                     game.increaseScore('X');
                     document.getElementById("player1-info").classList.add("winner-player"); 
                     setTimeout(() => {
-                        alert(`🎉 ${game.player1.name} wins! 🎉`);
+                        alert(`🎉 ${game.player1.getName()} wins! 🎉`);
                     }, 100);
+                    game.setGameStatus(true);
+                    return;
                 }
                 else{
                     markerWinnerCells(...winningCombos[i]);
                     game.increaseScore('O');
                     document.getElementById("player2-info").classList.add("winner-player");
                     setTimeout(() => {
-                        alert(`🎉 ${game.player2.name} wins! 🎉`);
+                        alert(`🎉 ${game.player2.getName()} wins! 🎉`);
                     }, 100);
+                    game.setGameStatus(true);
+                    return;
                 }
-                game.gameover = true;
                 
             }
         }
@@ -108,8 +147,12 @@ function Gameboard () {
         }
         
     };
-    const boardElement = document.querySelector(".board");
 
+ 
+    const boardElement = document.querySelector(".board");
+    const resetBoardElement = () =>{
+        boardElement.innerHTML = "";
+    };
     const createBoard = () => {
         for (let i = 0; i < board.length; i++) {
             const cell = document.createElement("div");
@@ -118,7 +161,7 @@ function Gameboard () {
             boardElement.appendChild(cell);
             
             cell.addEventListener("click", (e) => {
-                if (game.gameover) return;
+                if (game.getGameStatus()) return;
                 const indexCell = e.target.dataset.index;
                 if (cell.textContent === ""){
                     cell.textContent = game.currentPlayer;
@@ -133,14 +176,11 @@ function Gameboard () {
         }
     }
 
-    return { getBoard, resetBoard, createBoard };
+    return { getBoard, resetBoard, createBoard, resetBoardElement };
 };
 
 const board = Gameboard();
-
-board.createBoard();
-
-
+const game = GameController("","");;
 //Starting game
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("names");
@@ -157,9 +197,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const name1 = player1NameInput.value.trim();
         const name2 = player2NameInput.value.trim();
-        const game = GameController(name1,name2);
-
-
         if (name1 && name2) {
             
             // display names
@@ -169,46 +206,37 @@ document.addEventListener("DOMContentLoaded", () => {
             player1Marker.textContent = "X";
             player2Marker.textContent = "O";
 
-     
+            game.player1.setName(name1);
+            game.player2.setName(name2);
+            game.updateActivePlayerUI();
             // hiding forms
             form.style.display = "none";
             resetBtn.style.display = "inline-block";
-            //board.createBoard();
+            newBtn.style.display = "inline-block";
+            board.createBoard();
         }
     });
     const resetBtn = document.getElementById("resetBtn");
+    const newBtn = document.getElementById("newBtn");
 
     resetBtn.addEventListener("click", () => {
-        document.getElementById("player1-info").classList.remove("winner-player");
-        document.getElementById("player2-info").classList.remove("winner-player");
-        game.gameover = false;
+        game.resetWinnerPlayerUI();
+        game.setGameStatus(false);
         board.resetBoard();
+    });
+
+    newBtn.addEventListener("click", () => {
+        player1Display.textContent = "Player1";
+        player2Display.textContent = "Player2";
+        game.resetWinnerPlayerUI();
+        game.resetActivePlayerUI();
+        game.setGameStatus(false);
+        board.resetBoard();
+        board.resetBoardElement();
         game.resetScore();
+        form.style.display = "inline-block";
+        resetBtn.style.display = "none";
+        newBtn.style.display = "none";
     });
 });
 
-
-
-
-
-
-const DisplayController = (function () {
-    const boardDiv = document.getElementById("gameboard");
-  
-    const update = () => {
-      boardDiv.innerHTML = "";
-      Gameboard.getBoard().forEach((cell, index) => {
-        const cellDiv = document.createElement("div");
-        cellDiv.classList.add("cell");
-        cellDiv.textContent = cell;
-        cellDiv.addEventListener("click", () => {
-          GameController.playRound(index);
-        });
-        boardDiv.appendChild(cellDiv);
-      });
-    };
-  
-    update(); // רינדור ראשוני
-  
-    return { update };
-  })();
