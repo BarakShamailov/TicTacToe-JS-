@@ -126,17 +126,34 @@ function Gameboard () {
                     }, 100);
                     game.setGameStatus(true);
                     return;
-                }
-                
+                };
+            };
+            
+      
+        };
+        checkTieDraw();
+        return;
+    };
+
+    const checkTieDraw = () => {
+        for (let i = 0; i < board.length; i++) {
+
+            if (board[i] === "")
+            {
+                return;
             }
         }
+
+        setTimeout(() => {
+            alert("😅 It's a tie! No winners this time.");
+        }, 100);
     };
 
     const markerWinnerCells = (a,b,c) =>{
         document.querySelector(`[data-index="${a}"]`).style.backgroundColor = "lightgreen";
         document.querySelector(`[data-index="${b}"]`).style.backgroundColor = "lightgreen";
         document.querySelector(`[data-index="${c}"]`).style.backgroundColor = "lightgreen";
-    }
+    };
 
     const resetBoard = () => {
         for (let i = 0; i < board.length; i++) {
@@ -179,9 +196,9 @@ function Gameboard () {
     return { getBoard, resetBoard, createBoard, resetBoardElement };
 };
 
-const board = Gameboard();
-const game = GameController("","");;
-//Starting game
+let game; 
+const gameBoard = Gameboard();
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("names");
     const player1NameInput = document.getElementById("first-name");
@@ -192,51 +209,50 @@ document.addEventListener("DOMContentLoaded", () => {
     const player1Marker = document.querySelector("#player1-info .marker");
     const player2Marker = document.querySelector("#player2-info .marker");
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault(); // preventing refresh
-
-        const name1 = player1NameInput.value.trim();
-        const name2 = player2NameInput.value.trim();
-        if (name1 && name2) {
-            
-            // display names
-            player1Display.textContent = name1;
-            player2Display.textContent = name2;
-            // markers
-            player1Marker.textContent = "X";
-            player2Marker.textContent = "O";
-
-            game.player1.setName(name1);
-            game.player2.setName(name2);
-            game.updateActivePlayerUI();
-            // hiding forms
-            form.style.display = "none";
-            resetBtn.style.display = "inline-block";
-            newBtn.style.display = "inline-block";
-            board.createBoard();
-        }
-    });
     const resetBtn = document.getElementById("resetBtn");
     const newBtn = document.getElementById("newBtn");
 
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const name1 = player1NameInput.value.trim();
+        const name2 = player2NameInput.value.trim();
+
+        if (name1 && name2) {
+            game = GameController(name1, name2); // 👈 assign here
+
+            player1Display.textContent = name1;
+            player2Display.textContent = name2;
+            player1Marker.textContent = "X";
+            player2Marker.textContent = "O";
+
+            game.updateActivePlayerUI();
+            form.style.display = "none";
+            resetBtn.style.display = "inline-block";
+            newBtn.style.display = "inline-block";
+            gameBoard.createBoard();
+        }
+    });
+
     resetBtn.addEventListener("click", () => {
+        if (!game) return;
         game.resetWinnerPlayerUI();
         game.setGameStatus(false);
-        board.resetBoard();
+        gameBoard.resetBoard();
     });
 
     newBtn.addEventListener("click", () => {
-        player1Display.textContent = "Player1";
-        player2Display.textContent = "Player2";
+        if (!game) return;
+        player1Display.textContent = "Player 1";
+        player2Display.textContent = "Player 2";
         game.resetWinnerPlayerUI();
         game.resetActivePlayerUI();
         game.setGameStatus(false);
-        board.resetBoard();
-        board.resetBoardElement();
+        gameBoard.resetBoard();
+        gameBoard.resetBoardElement();
         game.resetScore();
         form.style.display = "inline-block";
         resetBtn.style.display = "none";
         newBtn.style.display = "none";
     });
 });
-
